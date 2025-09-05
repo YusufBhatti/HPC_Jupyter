@@ -7,10 +7,10 @@
 
 cd ~
 echo "into the Scripts for my project"
-export PATH=/home/ybhatti/yusufb/miniconda3/bin:$PATH
-source activate ESM
+export PATH=/home/ybhatti2/miniconda3/bin:$PATH
+source activate myenv
 ##PORT=`shuf -i 5000-5999 -n 1`
-PORT=51525
+PORT=51526
 #PORT=`shuf -i 5000-5999 -n 1`
 
 #OGIN_HOST=${SLURM_SUBMIT_HOST}-pub.snellius.surf.nl
@@ -25,7 +25,7 @@ echo "http://localhost:${PORT}"
 #/usr/bin/ssh -N -f -R $PORT:localhost:$PORT snellius
 
 echo "Connect to localhost" 
-sed -i '6c\ssh -N -J '"${USER}"'@'"${LOGIN_HOST}"' '"${USER}"'@'"${BATCH_HOST}"' -L '"${PORT}"':localhost:'"${PORT}"'' /home/ybhatti/HPC_Jupyter/ssh_connect.sh
+sed -i '6c\ssh -N -J '"${USER}"'@'"${LOGIN_HOST}"' '"${USER}"'@'"${BATCH_HOST}"' -L '"${PORT}"':localhost:'"${PORT}"'' /home/ybhatti2/HPC_Jupyter/ssh_connect.sh
 
 
 echo "connected to local host ssh -N -J ${USER}@${LOGIN_HOST} ${USER}@${BATCH_HOST} -L ${PORT}:localhost:${PORT}"

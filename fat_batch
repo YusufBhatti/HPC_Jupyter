@@ -7,10 +7,10 @@
 
 cd ~
 echo "into the Scripts for my project"
-export PATH=/home/ybhatti/yusufb/miniconda3/bin:$PATH
+export PATH=/home/ybhatti2/miniconda3/bin:$PATH
 source activate ESM
 ##PORT=`shuf -i 5000-5999 -n 1`
-PORT=51525
+PORT=51526
 #PORT=`shuf -i 5000-5999 -n 1`
 
 #OGIN_HOST=${SLURM_SUBMIT_HOST}-pub.snellius.surf.nl
