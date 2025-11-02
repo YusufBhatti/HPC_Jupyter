@@ -48,6 +48,82 @@ import matplotlib.pyplot as plt
 import scipy.interpolate as interpolate
 import xarray as xr
 
+def compute_variances(obs, instr_frac, repr_frac, var='AOD'):
+    """
+    obs: xr.DataArray (month, lat, lon)
+    instr_frac: fractional instrument uncertainty (e.g., 0.1)
+    repr_frac: fractional representation uncertainty (e.g., 0.1)
+    var: 'AOD' or 'ANG'
+    """
+    if var == 'AOD':
+        # Elementwise: choose larger of fractional (10%) or absolute (0.03)
+        frac_unc = instr_frac * obs
+        abs_unc = xr.full_like(obs, instr_abs_aod)
+        instr_unc = xr.where(frac_unc > abs_unc, frac_unc, abs_unc)
+
+        # mask NaNs from obs
+        instr_unc = instr_unc.where(~np.isnan(obs))
+        Var_O = instr_unc**2
+        Var_R = (repr_frac * obs)**2
+
+    elif var == 'ANG':
+        # Absolute O uncertainty of 0.2
+        abs_unc = xr.full_like(obs, instr_frac_ang)
+        Var_O = (abs_unc.where(~np.isnan(obs)))**2
+
+        # Var_O = (instr_frac_ang * obs)**2 # change to absolute
+        abs_unc = xr.full_like(obs, repr_frac)
+        Var_R = (abs_unc.where(~np.isnan(obs)))**2
+
+    elif var == 'SSA':
+        # Absolute O uncertainty of 0.03
+        abs_unc = xr.full_like(obs, instr_abs_ssa)
+        Var_O = (abs_unc.where(~np.isnan(obs)))**2
+
+        # Var_O = (instr_frac_ssa * obs)**2 # change to absolute
+        abs_unc = xr.full_like(obs, repr_frac)
+        Var_R = (abs_unc.where(~np.isnan(obs)))**2
+
+    elif var == 'AAOD':
+        # Elementwise: choose larger of fractional (10%) or absolute (0.01)
+        frac_unc = repr_aaod * obs
+        abs_unc = xr.full_like(obs, instr_abs_aaod)
+        instr_unc = xr.where(frac_unc > abs_unc, frac_unc, abs_unc)
+
+        # mask NaNs from obs
+        instr_unc = instr_unc.where(~np.isnan(obs))
+        Var_O = instr_unc**2
+        Var_R = (repr_frac * obs)**2
+
+    elif var == 'CN_Burden':
+        # fractional (30%) 
+        frac_unc = instr_frac * obs
+        # mask NaNs from obs
+        instr_unc = frac_unc.where(~np.isnan(obs))
+        Var_O = instr_unc**2
+        Var_R = (repr_frac * obs)**2
+
+
+    else:
+        raise ValueError("var must be 'AOD' or 'ANG' or 'SSA' or 'CN_Burden'")
+
+    return Var_O, Var_R
+
+# --- Define function to interpolate and mask regional data ---
+def Interpolate_Regional_uncertainty(Predicted, mask_number, Regions_nc):
+    mask = Regions_nc == mask_number
+    regional_array = Regions_nc.where(mask, drop=True)
+
+    # Interpolate predicted field onto regional grid
+    Predicted_interp = Predicted.interp(
+        lat=regional_array.lat, lon=regional_array.lon, method="nearest"
+    )
+
+    # Apply mask: retain only cells matching region number
+    masked_array = Predicted_interp.where(regional_array == mask_number)
+    return masked_array
+
+
 def average_group_std(data):
     # Square the standard deviations
     squared_std = data**2

@@ -3,7 +3,7 @@ echo "Waiting for 5 seconds..."
 
 
 echo "Connect to localhost"
-ssh -N -J ybhatti2@int5-pub.snellius.surf.nl ybhatti2@tcn491.local.snellius.surf.nl -L 51526:localhost:51526
+ssh -N -J ybhatti2@int5-pub.snellius.surf.nl ybhatti2@fcn74.local.snellius.surf.nl -L 51526:localhost:51526
 echo
 
 # Use sshpass to handle the password

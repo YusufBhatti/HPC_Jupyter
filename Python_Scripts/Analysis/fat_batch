@@ -1,0 +1,60 @@
+#!/bin/bash
+#SBATCH --job-name=Process_large_data
+#SBATCH -t 12:00:00
+#SBATCH -p fat_genoa
+#SBATCH -N 7              # 3 nodes
+#SBATCH --get-user-env
+#SBATCH --exclusive
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.err
+
+echo "into the Scripts for my project"
+export PATH=/home/ybhatti2/miniconda3/bin:$PATH
+source activate myenv
+
+export PYTHONPATH=$PYTHONPATH:/home/ybhatti2/HPC_Jupyter/Python_Scripts/
+#export PYTHONPATH=$PYTHONPATH:/home/ybhatti/prjs1076/Emulator:/home/ybhatti/prjs1076/Emulator/
+export NUMBER_OF_SAMPLES=50000
+#export VARIABLE_NAME=AOD_Mode_1
+
+#python -u Emulate_Large_Regional_Constraint.py
+python -u Part_1_Emulate.py
+
+# --- Variables to emulate ---
+VARIABLES=(AOD AAOD ANG AOD_Mode_1 AOD_Mode_2 AOD_Mode_3 SSA)
+
+MAX_PARALLEL=7   # how many variables to run at once
+count=0
+
+for VARIABLE_NAME in "${VARIABLES[@]}"
+do
+    echo ">>> Running for VARIABLE_NAME=${VARIABLE_NAME}"
+    export VARIABLE_NAME
+    #python -u Part_2_Emulate.py > log_${VARIABLE_NAME}.out 2>&1 &
+    srun --ntasks=1 --nodes=1 python -u Part_2_Emulate.py > log_${VARIABLE_NAME}.out 2>&1 &
+
+    ((count++))
+    # When two jobs are running, wait for them to finish before continuing
+    if ((count % MAX_PARALLEL == 0)); then
+        echo ">>> Waiting for current batch to finish..."
+        wait
+        echo ">>> Continuing with next batch..."
+    fi
+    sleep 15
+done
+
+#SBATCH --exclusive
+# Loop over all variable names
+#for VARIABLE_NAME in AOD AAOD ANG AOD_Mode_1 AOD_Mode_2 AOD_Mode_3 SSA
+#do
+#    echo ">>> Running for VARIABLE_NAME=${VARIABLE_NAME}"
+#    export VARIABLE_NAME
+#    python -u Part_2_Emulate.py > log_${VARIABLE_NAME}.out 2>&1 &
+#    sleep 15
+#echo ">>> Finished VARIABLE_NAME=${VARIABLE_NAME}"
+#    echo "----------------------------------------"
+#done
+
+wait
+echo "✅ All variable emulations completed."
+

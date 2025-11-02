@@ -1,14 +1,14 @@
 #!/bin/bash
-#BATCH --job-name=jupyterlab
+#BATCH --job-name=fat_jupyterlab
 #SBATCH -t 8:00:00
-#SBATCH -p fat_rome
-#SBATCH --cpus-per-task=80
+#SBATCH -p fat_genoa
+#SBATCH --cpus-per-task=192
 #SBATCH --get-user-env
 
 cd ~
 echo "into the Scripts for my project"
 export PATH=/home/ybhatti2/miniconda3/bin:$PATH
-source activate ESM
+source activate myenv
 ##PORT=`shuf -i 5000-5999 -n 1`
 PORT=51526
 #PORT=`shuf -i 5000-5999 -n 1`
@@ -25,7 +25,8 @@ echo "http://localhost:${PORT}"
 #/usr/bin/ssh -N -f -R $PORT:localhost:$PORT snellius
 
 echo "Connect to localhost" 
-sed -i '6c\ssh -N -J '"${USER}"'@'"${LOGIN_HOST}"' '"${USER}"'@'"${BATCH_HOST}"' -L '"${PORT}"':localhost:'"${PORT}"'' /home/ybhatti/yusufb/Scripts/git_scripts/Python_Scripts/HPC_Python/ssh_connect.sh
+sed -i '6c\ssh -N -J '"${USER}"'@'"${LOGIN_HOST}"' '"${USER}"'@'"${BATCH_HOST}"' -L '"${PORT}"':localhost:'"${PORT}"'' /home/ybhatti2/HPC_Jupyter/ssh_connect.sh
+
 
 echo "connected to local host ssh -N -J ${USER}@${LOGIN_HOST} ${USER}@${BATCH_HOST} -L ${PORT}:localhost:${PORT}"
 
