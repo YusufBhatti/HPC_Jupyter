@@ -5,16 +5,6 @@ import os
 from my_functions import *
 
 print('Part 2')
-
-
-
-
-# CN_Burden = xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CN_BURDEN_POLDER_Interpolated_MODEL.nc').CN_BURDEN
-
-
-
-
-
 print('loaded variables')
 
 
@@ -24,8 +14,10 @@ print('loaded variables')
 #var_name = "AOD"  # <<< CHANGE THIS (AOD, ANG, SSA, or AAOD)
 var_name = os.getenv('VARIABLE_NAME')
 
-base_dir = "/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PD/Emulated_data/Implausibility/Var"
+#base_dir = "/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PD/Emulated_data/Implausibility/Var"
 n_samples = int(os.getenv('NUMBER_OF_SAMPLES'))
+#base_dir = "/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PD/Emulated_data/Implausibility/Var"
+base_dir = os.getenv('BASE_DIR')
 
 # ===============================
 # LOAD DATA
@@ -33,34 +25,50 @@ n_samples = int(os.getenv('NUMBER_OF_SAMPLES'))
 # --- Uncertainty settings ---
 if var_name == "AOD":
     instr_frac, instr_abs, repr_frac = 0.15, 0.035, 0.10
+    instr_frac, instr_abs, repr_frac = 0.1, 0.030, 0.10
     obs_data = xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AOD_POLDER_Interpolated_MODEL.nc').TAU_2D_550nm.load()
+    
+elif var_name == "AI":
+    instr_frac, instr_abs, repr_frac = 0.15, 0.035, 0.10
+    instr_frac, instr_abs, repr_frac = 0.15, 0.025, 0.10
+    obs_data = xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AI_POLDER_Interpolated_MODEL.nc').__xarray_dataarray_variable__.load()
+
 elif var_name == "ANG":
     instr_frac, instr_abs, repr_frac = 0, 0.25, 0.10
+    instr_frac, instr_abs, repr_frac = 0, 0.2, 0.10
     obs_data = xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/ANG_POLDER_Interpolated_MODEL.nc').ANG_440nm_670nm.load()
 
 # instr_abs_ssa_filter  = 0.06   # absolute instrument uncertainty
 
 elif var_name == "SSA":
-    instr_frac, instr_abs, repr_frac = 0, 0.06, 0
+    instr_frac, instr_abs, repr_frac = 0, 0.04, 0.10
+    instr_frac, instr_abs, repr_frac = 0, 0.04, 0.10
     AOD = xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AOD_POLDER_Interpolated_MODEL.nc').TAU_2D_550nm.load()
     obs_data = xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/SSA_POLDER_Interpolated_MODEL.nc').__xarray_dataarray_variable__.load()
-    obs_data = obs_data.where(AOD[:,-1] > 0.2)
+    #obs_data = obs_data.where(AOD[:,-1] > 0.2)
+    obs_data = obs_data.where(AOD[:,-1] > 0.1)
 
 elif var_name == "AAOD":
-    instr_frac, instr_abs, repr_frac = 0.10, 0.01, 0.10
+    instr_frac, instr_abs, repr_frac = 0.10, 0.03, 0.10
+    instr_frac, instr_abs, repr_frac = 0.10, 0.03, 0.10
     obs_data = xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AAOD_POLDER_Interpolated_MODEL.nc').AAOD.load()
 
 elif var_name == "AOD_Mode_1":
     instr_frac, instr_abs, repr_frac = 0.10, 0.03, 0.10
+    instr_frac, instr_abs, repr_frac = 0.10, 0.035, 0.10
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AOD_Mode_1_POLDER_Interpolated_MODEL.nc').__xarray_dataarray_variable__.load()
 
 elif var_name == "AOD_Mode_2":
     instr_frac, instr_abs, repr_frac = 0.10, 0.03, 0.10
+#    instr_frac, instr_abs, repr_frac = 0.06, 0.025, 0.10
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AOD_Mode_2_POLDER_Interpolated_MODEL.nc').TAU_2D_MODE_CI_550nm.load()
-
 elif var_name == "AOD_Mode_3":
     instr_frac, instr_abs, repr_frac = 0.10, 0.03, 0.10
+    instr_frac, instr_abs, repr_frac = 0.05, 0.02, 0.10
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AOD_Mode_3_POLDER_Interpolated_MODEL.nc').TAU_2D_MODE_CS_550nm.load()
+elif var_name == "AOD_Mode_Coarse":
+    instr_frac, instr_abs, repr_frac = 0.06, 0.025, 0.10
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AOD_Mode_Coarse_POLDER_Interpolated_MODEL.nc').__xarray_dataarray_variable__.load()
 
 else:
     raise ValueError("Unknown variable name.")
@@ -78,7 +86,7 @@ emulated_masked = emulated.where(valid_mask)
     
 # --- Compute variances ---
 def compute_variances(obs, instr_frac, instr_abs, repr_frac):
-    if var_name == 'AOD' or var_name == 'AOD_Mode_1' or var_name == 'AOD_Mode_2' or var_name == 'AOD_Mode_3':
+    if var_name == 'AOD' or var_name == 'AOD_Mode_1' or var_name == 'AOD_Mode_2' or var_name == 'AOD_Mode_3' or var_name == 'AI' or var_name == 'AOD_Mode_Coarse':
         # Elementwise: choose larger of fractional (10%) or absolute (0.03)
         frac_unc = instr_frac * obs
         abs_unc = xr.full_like(obs, instr_abs)
@@ -138,6 +146,7 @@ def compute_implausibility(emulated, var_emulated, obs, Var_O, Var_R):
 
 I_field, I_max = compute_implausibility(emulated_masked, var_emulated, obs_vec, Var_O, Var_R)
 I_field.to_netcdf(f"{base_dir}/{var_name}/I_field_{var_name.lower()}_{n_samples}.nc")
+print(f"saved I_field for {var_name}")
 
 # --- Rejection map ---
 def rejection_map_monthly(I_field, threshold=1):
@@ -156,8 +165,8 @@ def rejection_map_monthly(I_field, threshold=1):
 reject_map = rejection_map_monthly(I_field, threshold=1)
 reject_map.to_netcdf(f"{base_dir}/{var_name}/reject_map_{var_name.lower()}_{n_samples}.nc")
 
-implaus_mask = I_field.where(reject_map)
-implaus_mask.to_netcdf(f"{base_dir}/{var_name}/implausibility_values_{var_name.lower()}_{n_samples}.nc")
+#implaus_mask = I_field.where(reject_map)
+#implaus_mask.to_netcdf(f"{base_dir}/{var_name}/implausibility_values_{var_name.lower()}_{n_samples}.nc")
 print(f"reject_map and implaus_mask for {var_name}")
 
 # --- Regional aggregation ---
@@ -192,6 +201,7 @@ region_names = [
 Region_data = []
 Region_OBS = []
 boxplot_ppe_data = []
+boxplot_ppe_data_OBS=[]
 
 emulated_masked_rejected = emulated_masked.where(reject_map)
 obs_vec_rejected = obs_vec.where(reject_map)
@@ -202,17 +212,27 @@ for region_name in region_names:
     gpmeans = areaweight(region_gp, region_gp.lat)
     Region_data.append(gpmeans.values)
     boxplot_ppe_data.append(gpmeans.mean('month'))
+    
     region_obs = Interpolate_Regional_uncertainty(obs_vec_rejected, region_name, regional_mask)
     obsmeans = areaweight(region_obs, region_obs.lat)
     Region_OBS.append(obsmeans.values)
+    boxplot_ppe_data_OBS.append(obsmeans.mean('month'))
+
+boxplot_ppe_data.append(areaweight(emulated_masked_rejected, emulated_masked_rejected.lat).mean('month'))
+boxplot_ppe_data_OBS.append(areaweight(obs_vec_rejected, obs_vec_rejected.lat).mean('month'))
 
 Region_data = np.array(Region_data)
 Region_OBS = np.array(Region_OBS)
 boxplot_ppe_data = np.array(boxplot_ppe_data)
+boxplot_ppe_data_OBS = np.array(boxplot_ppe_data_OBS)
 
 Region_data = np.concatenate([Region_data, Region_OBS[:, np.newaxis, :]], axis=1)
+#Region_data_box = np.concatenate([boxplot_ppe_data, boxplot_ppe_data_OBS[:, np.newaxis, :]], axis=1)
+Region_data_box = np.concatenate([boxplot_ppe_data, boxplot_ppe_data_OBS[:, np.newaxis]], axis=1)
+
 sample_coords = np.append(emulated_masked_rejected.sample.values, -1)
-sample_coords_box = emulated_masked_rejected.sample.values
+# sample_coords_box = emulated_masked_rejected.sample.values
+
 
 Region_data = xr.DataArray(
     Region_data,
@@ -222,13 +242,22 @@ Region_data = xr.DataArray(
 )
 Region_data.to_netcdf(f"{base_dir}/{var_name}/Regional_Uncertainty_{var_name.lower()}_{n_samples}.nc")
 
+region_names = [
+    'Australia', 'Europe', 'South-East Asia', 'Siberia','Savannah',
+    'North America', 'Boreal America',
+    'Amazon', 'North Atlantic', 'South Atlantic', 'North Pacific',
+    'South Pacific', 'Tropic Atlantic' , 'Tropic Pacific', 'Tropic Indian', 'South Indian',
+    'Dust belt','Global'
+]
+
+
 box_data = xr.DataArray(
-    boxplot_ppe_data,
+    Region_data_box,
     dims=("region", "sample"),
-    coords={"region": region_names, "sample": sample_coords_box},
+    coords={"region": region_names, "sample": sample_coords},
     name=var_name
 )
-Region_data.to_netcdf(f"{base_dir}/{var_name}/Boxplot_Unconstrained_Uncertainty_{var_name.lower()}_{n_samples}.nc")
+box_data.to_netcdf(f"{base_dir}/{var_name}/Boxplot_Unconstrained_Uncertainty_{var_name.lower()}_{n_samples}.nc")
 
 
 print(f"Completed variable: {var_name}")
