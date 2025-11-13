@@ -188,14 +188,14 @@ def Interpolate_Regional_uncertainty(Predicted, region_name, ds_mask):
     masked_array = Predicted.where(region_mask)
     return masked_array
 
-regional_mask = xr.open_dataset('/gpfs/home3/ybhatti2/HPC_Jupyter/Python_Scripts/Analysis/Regional_Mask.nc').regional_mask.load()
+regional_mask = xr.open_dataset('/gpfs/home3/ybhatti2/HPC_Jupyter/Python_Scripts/Analysis/Regional_Mask_Ships.nc').regional_mask.load()
 
 region_names = [
     'Australia', 'Europe', 'South-East Asia', 'Siberia','Savannah',
     'North America', 'Boreal America',
     'Amazon', 'North Atlantic', 'South Atlantic', 'North Pacific',
     'South Pacific', 'Tropic Atlantic' , 'Tropic Pacific', 'Tropic Indian', 'South Indian',
-    'Dust belt'
+    'Dust belt','Shipping'
 ]
 
 Region_data = []
@@ -247,7 +247,7 @@ region_names = [
     'North America', 'Boreal America',
     'Amazon', 'North Atlantic', 'South Atlantic', 'North Pacific',
     'South Pacific', 'Tropic Atlantic' , 'Tropic Pacific', 'Tropic Indian', 'South Indian',
-    'Dust belt','Global'
+    'Dust belt','Shipping','Global'
 ]
 
 

@@ -64,6 +64,15 @@ elif var_name == "AOD_Mode_3":
 elif var_name == "AOD_Mode_Coarse":
     model= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AOD_Mode_Coarse_POLDER_Interpolated_MODEL.nc').__xarray_dataarray_variable__
     kernal=['Bias','Matern52','Polynomial'] # ANG , SSA, AI, M2
+elif var_name == "ERF":
+    model= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PD/ERF_PPE.nc').__xarray_dataarray_variable__
+    kernal=['Linear','Matern52'] # for  ERF, AOD_M_1, AOD_M_3
+elif var_name == "ERFaci":
+    model= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PD/ERFaci_PPE.nc').__xarray_dataarray_variable__
+    kernal=['Linear','Matern52'] # for  ERF, AOD_M_1, AOD_M_3
+elif var_name == "ERFari":
+    model= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PD/ERFari_PPE.nc').__xarray_dataarray_variable__
+    kernal=['Linear','Matern52'] # for  ERF, AOD_M_1, AOD_M_3
 
 else:
     raise ValueError("Unknown variable name.")
@@ -81,8 +90,12 @@ ppe_param.set_index(ppe_param.columns[0], inplace=True)
 
 import copy
 
-ppe_var = copy.deepcopy(model[:,:-1]).groupby('time.month').mean().fillna(0)
-ppe_var = ppe_var.transpose("ensemble", "month", "lat", "lon")
+try:
+    ppe_var = copy.deepcopy(model[:,:-1]).groupby('time.month').mean().fillna(0)
+    ppe_var = ppe_var.transpose("ensemble", "month", "lat", "lon")
+except:
+  #  ppe_var = copy.deepcopy(model)#.fillna(0)
+    ppe_var = model.transpose("ensemble", "month", "lat", "lon")
 
 n_total = len(ppe_param)
 n_test = 70  # Number of test samples
@@ -130,3 +143,7 @@ print('Saving emulated Variables')
 emulated.to_netcdf(f'{base_dir}/{var_name}/emulated_{var_name.lower()}_{n_samples}.nc')
 var.to_netcdf(f'{base_dir}/{var_name}/emulated_var_{var_name.lower()}_{n_samples}.nc')
 
+if var_name == 'ERF' or var_name == 'ERFaci' or var_name == 'ERFari':
+    print(f'areaweighting {var_name}')
+    area_emulated = areaweight(emulated,lats).mean('month')
+    area_emulated.to_netcdf(f'{base_dir}/{var_name}/emulated_{var_name.lower()}_{n_samples}_areaweighted.nc')
