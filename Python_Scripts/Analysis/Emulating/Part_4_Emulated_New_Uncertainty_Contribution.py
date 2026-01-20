@@ -78,8 +78,15 @@ elif var_name == "ERFaci":
 elif var_name == "ERFari":
     kernal=['Linear','Matern52'] # for  ERF, AOD_M_1, AOD_M_3
     kernal=['Matern52'] # ANG , SSA, AI, M2
-elif var_name == "CDNC" or var_name == "CDNC_Filtered" or var_name == "REFFL_CT" :
+elif var_name == "CDNC_Filtered_HARP":
+    kernal=['Polynomial'] # ANG , SSA, AI, M2
+    kernal=['Matern52','Polynomial'] # ANG , SSA, AI, M2
+
+elif var_name == "CDNC" or var_name == "CDNC_Filtered" or var_name == "REFFL_CT" or var_name.startswith(("CDNC_Filtered", "REFFL_CT")):
     kernal=['Bias', 'Matern52']  #  CDNC
+
+elif var_name == "TAU355_daily":
+    kernal=['Bias','Polynomial'] # ANG , SSA, AI, M2
 
 else:
     raise ValueError("Unknown variable name.")
@@ -125,7 +132,10 @@ print('Emulator Training complete')
 print(f'Distribution of Actual vs. Predicted Values {kernal} = {np.corrcoef(y_true, y_pred)[1][0]**2:.4f}')
 
 
-ppe_normalized_new_samples = pd.read_csv(f'{base_dir}/ppe_params_{n_samples_new}_Important_Parameters.csv')
+#ppe_normalized_new_samples = pd.read_csv(f'/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PD/Emulated_data/Implausibility/Var/Regional/Accepted_Ensembles/Accepted_Params_norm_4270.csv')
+#ppe_normalized_new_samples = pd.read_csv(f'/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PD/Emulated_data/Implausibility/Var/Regional/Accepted_Ensembles/Accepted_Params_norm_3970_Best_Constraint.csv')
+ppe_normalized_new_samples = pd.read_csv(f'/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PD/Emulated_data/Implausibility/Var/Regional/Accepted_Ensembles/Accepted_Params_norm_2566_Best_Constraint.csv')
+
 ppe_normalized_new_samples.set_index(ppe_normalized_new_samples.columns[0], inplace=True)
 print('Read new samples ')
 
@@ -147,33 +157,50 @@ def parameter_testing(table,PARAMETER):
 emulated, var = gp_model.predict(ppe_normalized_new_samples.values)
 
 # 
-print(f'For {var_name} we will now obtain the contribution to global annual mean uncertainty')
+print(f'For {var_name} we will now obtain the contribution to global annual mean uncertainty for the ACCEPTED Ensembles')
 # Initialize an empty list to hold the results
 results = []
+results_ann = []
 for col,i in zip(ppe_normalized_new_samples.columns,range(0,len(ppe_normalized_new_samples.columns))):
     print(col)
     norm_param = parameter_testing(ppe_normalized_new_samples,col)
     gp_prediction, _ = gp_model.predict(norm_param.values)
     gpmeans = gp_prediction.sel(region='Global').mean('month')
-    gp_uncert = gpmeans.std()
+    gp_uncert = gp_prediction.std('sample')
+    gp_uncert_ann = gpmeans.std('sample')
+
     # Append the results as a dictionary
-    results.append({
+    results_ann.append({
         'Variable': col,
-        f"std": gp_uncert.data,
+        f"std": gp_uncert_ann.data,
     })
+    # Convert DataArray to tidy DataFrame
+    df_tmp = gp_uncert.to_dataframe(name="std").reset_index()
+    
+    # Add parameter name
+    df_tmp["Variable"] = col
+    
+    results.append(df_tmp)
+
+    # if i == 2:
+    #     end
+    
 # Convert the accumulated results into a DataFrame after the loop
-results_df = pd.DataFrame(results)
-results_df[f"Uncertainty_{var_name}"] = (results_df['std'] / results_df['std'].sum()) * 100
-results_df.to_csv(f'{base_dir_regional}/{var_name}/Contribution_of_{var_name.lower()}_{n_samples_new}_Important_Parameters.csv')
+results_df_ann = pd.DataFrame(results_ann)
+results_df = pd.concat(results, ignore_index=True)
+
+results_df_ann[f"Uncertainty_{var_name}_Constrained_Pre"] = (results_df_ann['std'] / results_df_ann['std'].sum()) * 100
+results_df.to_csv(f'{base_dir_regional}/{var_name}/Contribution_of_{var_name.lower()}_{n_samples_new}_to_CONSTRAINED_uncertainty_v2.csv')
+results_df_ann.to_csv(f'{base_dir_regional}/{var_name}/Contribution_of_{var_name.lower()}_{n_samples_new}_to_CONSTRAINED_uncertainty_annual_v2.csv')
 
 
-if var_name == 'ERF' or var_name == 'ERFaci' or var_name == 'ERFari':
-    pass
-else:
-    emulated = xr.concat([emulated, model_da], dim='sample')
+# if var_name == 'ERF' or var_name == 'ERFaci' or var_name == 'ERFari':
+#     pass
+# else:
+#     emulated = xr.concat([emulated, model_da], dim='sample')
 
 
-print('Saving emulated Variables')
-emulated.to_netcdf(f'{base_dir_regional}/{var_name}/emulated_{var_name.lower()}_{n_samples_new}_Important_Parameters.nc')
+#print('Saving emulated Variables')
+# emulated.to_netcdf(f'{base_dir_regional}/{var_name}/emulated_{var_name.lower()}_{n_samples_new}.nc')
 
-print('Completed Part 4 ')
+print('Completed ')

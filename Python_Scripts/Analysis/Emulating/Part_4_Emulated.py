@@ -40,12 +40,6 @@ model_da = model[-1].expand_dims(sample=[-1])
 
 print(f"Part 4 - Emulate the regional means for {var_name}")
 
-# if var_name == 'ERF' or var_name == 'ERFaci' or var_name == 'ERFari':
-#     ppe_var = copy.deepcopy(model).fillna(0)
-# else:
-
-
-
 if var_name == "AOD":
     kernal=['Bias','Polynomial'] # ANG , SSA, AI, M2
 
@@ -58,7 +52,7 @@ elif var_name == "ANG":
 elif var_name == "SSA":
     kernal=['Bias','Matern52'] # ANG , SSA, AI, M2
 
-elif var_name == "AAOD" or var_name == "CDNC":
+elif var_name == "AAOD":
     kernal=['Polynomial']  # AAOD
 
 elif var_name == "AOD_Mode_1":
@@ -84,18 +78,25 @@ elif var_name == "ERFaci":
 elif var_name == "ERFari":
     kernal=['Linear','Matern52'] # for  ERF, AOD_M_1, AOD_M_3
     kernal=['Matern52'] # ANG , SSA, AI, M2
+elif var_name == "CDNC_Filtered_HARP":
+    kernal=['Polynomial'] # ANG , SSA, AI, M2
+    kernal=['Matern52','Polynomial'] # ANG , SSA, AI, M2
+
+elif var_name == "CDNC" or var_name == "CDNC_Filtered" or var_name == "REFFL_CT" or var_name.startswith(("CDNC_Filtered", "REFFL_CT")):
+    kernal=['Bias', 'Matern52']  #  CDNC
+
+elif var_name == "TAU355":
+    kernal=['Bias','Polynomial'] # ANG , SSA, AI, M2
     
-elif var_name == "CDNC":
-    kernal=['Polynomial']  #  CDNC
+elif var_name == "TAU355_daily":
+    kernal=['Bias','Polynomial'] # ANG , SSA, AI, M2
+
 
 else:
     raise ValueError("Unknown variable name.")
 
 
 print(f'loaded variables {var_name}')
-
-
-# AAOD = (1 - SSA) * AOD
 
 ppe_normalized = pd.read_csv('/home/ybhatti2/prjs1474/Datasets/Normalized_PPE_Parameters.csv')
 ppe_param = pd.read_csv('/home/ybhatti2/prjs1474/Datasets/PPE_Parameters.csv')
@@ -140,9 +141,59 @@ ppe_normalized_new_samples.set_index(ppe_normalized_new_samples.columns[0], inpl
 print('Read new samples ')
 
 
+def parameter_testing(table,PARAMETER):
+    para_table=copy.deepcopy(table)
+    # Assuming 'Control' row is the first row (index 0)
+    control_row = para_table.iloc[0]
+    
+    # Update all rows to match the Control row, except for Variable
+    for column in table.columns:
+        if column != PARAMETER:
+            para_table[column] = control_row[column]
+    return para_table
+    norm_param = parameter_testing(norm_para,'')
+
 
 
 emulated, var = gp_model.predict(ppe_normalized_new_samples.values)
+
+# 
+print(f'For {var_name} we will now obtain the contribution to global annual mean uncertainty')
+# Initialize an empty list to hold the results
+results = []
+results_ann = []
+
+for col,i in zip(ppe_normalized_new_samples.columns,range(0,len(ppe_normalized_new_samples.columns))):
+    print(col)
+    norm_param = parameter_testing(ppe_normalized_new_samples,col)
+    gp_prediction, _ = gp_model.predict(norm_param.values)
+    gpmeans = gp_prediction.sel(region='Global').mean('month')
+    gp_uncert = gp_prediction.std('sample')
+    gp_uncert_ann = gpmeans.std('sample')
+
+    # Append the results as a dictionary
+    results_ann.append({
+        'Variable': col,
+        f"std": gp_uncert_ann.data,
+    })
+    df_tmp = gp_uncert.to_dataframe(name="std").reset_index()
+    
+    # Add parameter name
+    df_tmp["Variable"] = col
+    
+    results.append(df_tmp)
+    
+# Convert the accumulated results into a DataFrame after the loop
+results_df_ann = pd.DataFrame(results_ann)
+
+results_df = pd.concat(results, ignore_index=True)
+#results_df[f"Uncertainty_{var_name}_UNConstrained_Pre"] = (results_df['std'] / results_df['std'].sum()) * 100
+results_df_ann[f"Uncertainty_{var_name}_UNConstrained_Pre"] = (results_df_ann['std'] / results_df_ann['std'].sum()) * 100
+
+results_df.to_csv(f'{base_dir_regional}/{var_name}/Contribution_of_{var_name.lower()}_{n_samples_new}_to_uncertainty.csv')
+results_df_ann.to_csv(f'{base_dir_regional}/{var_name}/Contribution_of_{var_name.lower()}_{n_samples_new}_to_uncertainty_annual.csv')
+
+
 if var_name == 'ERF' or var_name == 'ERFaci' or var_name == 'ERFari':
     pass
 else:
@@ -151,10 +202,5 @@ else:
 
 print('Saving emulated Variables')
 emulated.to_netcdf(f'{base_dir_regional}/{var_name}/emulated_{var_name.lower()}_{n_samples_new}.nc')
-
-# if var_name == 'ERF' or var_name == 'ERFaci' or var_name == 'ERFari':
-#     print(f'areaweighting {var_name}')
-#     area_emulated = areaweight(emulated,lats).mean('month')
-#     area_emulated.to_netcdf(f'{base_dir_regional}/{var_name}/emulated_{var_name.lower()}_{n_samples_new}_areaweighted.nc')
 
 print('Completed Part 4 ')

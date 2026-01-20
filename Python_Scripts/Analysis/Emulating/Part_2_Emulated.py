@@ -29,7 +29,7 @@ if var_name == "AOD":
     
 elif var_name == "AI":
     instr_frac, instr_abs, repr_frac = 0.15, 0.035, 0.10
-    instr_frac, instr_abs, repr_frac = 0.15, 0.025, 0.10
+    instr_frac, instr_abs, repr_frac = 0.1, 0.03, 0.10
     obs_data = xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AI_POLDER_Interpolated_MODEL.nc').__xarray_dataarray_variable__.load()
 
 elif var_name == "ANG":
@@ -41,7 +41,7 @@ elif var_name == "ANG":
 
 elif var_name == "SSA":
     instr_frac, instr_abs, repr_frac = 0, 0.04, 0.10
-    instr_frac, instr_abs, repr_frac = 0, 0.04, 0.10
+    instr_frac, instr_abs, repr_frac = 0, 0.03, 0.10
     AOD = xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AOD_POLDER_Interpolated_MODEL.nc').TAU_2D_550nm.load()
     obs_data = xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/SSA_POLDER_Interpolated_MODEL.nc').__xarray_dataarray_variable__.load()
     #obs_data = obs_data.where(AOD[:,-1] > 0.2)
@@ -54,7 +54,9 @@ elif var_name == "AAOD":
 
 elif var_name == "AOD_Mode_1":
     instr_frac, instr_abs, repr_frac = 0.10, 0.03, 0.10
-    instr_frac, instr_abs, repr_frac = 0.10, 0.035, 0.10
+    instr_frac, instr_abs, repr_frac = 0.10, 0.01, 0.10
+    instr_frac, instr_abs, repr_frac = 0.10, 0.02, 0.10
+
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AOD_Mode_1_POLDER_Interpolated_MODEL.nc').__xarray_dataarray_variable__.load()
 
 elif var_name == "AOD_Mode_2":
@@ -66,11 +68,38 @@ elif var_name == "AOD_Mode_3":
     instr_frac, instr_abs, repr_frac = 0.05, 0.02, 0.10
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AOD_Mode_3_POLDER_Interpolated_MODEL.nc').TAU_2D_MODE_CS_550nm.load()
 elif var_name == "AOD_Mode_Coarse":
-    instr_frac, instr_abs, repr_frac = 0.06, 0.025, 0.10
+    instr_frac, instr_abs, repr_frac = 0.1, 0.015, 0.10
+    instr_frac, instr_abs, repr_frac = 0.1, 0.02, 0.10
+
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AOD_Mode_Coarse_POLDER_Interpolated_MODEL.nc').__xarray_dataarray_variable__.load()
 elif var_name == "CDNC":
-    instr_frac, instr_abs, repr_frac = 0.40, 0.00, 0.10
+    instr_frac, instr_abs, repr_frac = 0.50, 0.00, 0.10
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_OCI_Interpolated_MODEL.nc').CDNC_INCL_CT.load()
+elif var_name == "CDNC_Filtered_OCI":
+    instr_frac, instr_abs, repr_frac = 0.4, 0.00, 0.10
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_OCI_Interpolated_MODEL_Swath.nc').CDNC_INCL_CT.load()
+elif var_name == "CDNC_Filtered_SPEXone":
+    instr_frac, instr_abs, repr_frac = 0.2, 0.00, 0.10
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_SPEXone_Filtered_Interpolated_MODEL.nc').CDNC_INCL_CT.load()
+elif var_name == "CDNC_Filtered_HARP":
+    instr_frac, instr_abs, repr_frac = 0.2, 0.00, 0.10
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_HARP_Interpolated_MODEL_Swath.nc').CDNC_INCL_CT.load()
+elif var_name == "REFFL_CT_OCI":
+    instr_frac, instr_abs, repr_frac = 0.2, 3, 0.10
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/REFFL_CT_OCI_Interpolated_MODEL_Swath.nc').REFFL_CT.load()
+elif var_name == "REFFL_CT_SPEXone":
+    instr_frac, instr_abs, repr_frac = 0.2, 2, 0.10
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/REFFL_CT_SPEXone_Interpolated_MODEL.nc').REFFL_CT.load()
+elif var_name == "REFFL_CT_HARP":
+    instr_frac, instr_abs, repr_frac = 0.2, 2, 0.10
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/REFFL_CT_HARP2_Interpolated_MODEL_Swath.nc').REFFL_CT.load()
+
+elif var_name == "TAU355":
+    instr_frac, instr_abs, repr_frac = 0.15, 0.00, 0.10
+    obs_data = xr.open_dataset(f'/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/TAU355_2km_EarthCARE_Interpolated_MODEL.nc').TAU_3D_355nm#.fillna(0)
+elif var_name == "TAU355_daily":
+    instr_frac, instr_abs, repr_frac = 0.15, 0.00, 0.10
+    obs_data = xr.open_dataset(f'/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/TAU355_2km_EarthCARE_Interpolated_MODEL_daily.nc').TAU_3D_355nm#.fillna(0)
 
 else:
     raise ValueError("Unknown variable name.")
@@ -82,14 +111,14 @@ emulated = xr.open_dataarray(f"{base_dir}/{var_name}/emulated_{var_name.lower()}
 # obs_map = {
 #     "AOD": AOD, "ANG": ANG, "SSA": SSA, "AAOD": AAOD, "AAOD": AAOD, "AOD_Mode_1": AOD_Mode_1, "AOD_Mode_2": AOD_Mode_2, "AOD_Mode_3": AOD_Mode_2,
 # }
-obs_vec = obs_data[:, -1].groupby('time.month').mean()
+obs_vec = obs_data.sel(ensemble=-1).groupby('time.month').mean()
 valid_mask = ~np.isnan(obs_vec)
 emulated_masked = emulated.where(valid_mask)
 
     
 # --- Compute variances ---
 def compute_variances(obs, instr_frac, instr_abs, repr_frac):
-    if var_name == 'AOD' or var_name == 'AOD_Mode_1' or var_name == 'AOD_Mode_2' or var_name == 'AOD_Mode_3' or var_name == 'AI' or var_name == 'AOD_Mode_Coarse':
+    if var_name == 'AOD' or var_name == 'AOD_Mode_1' or var_name == 'AOD_Mode_2' or var_name == 'AOD_Mode_3' or var_name == 'AI' or var_name == 'AOD_Mode_Coarse' or var_name == 'REFFL_CT' or var_name.startswith(("REFFL_CT")):
         # Elementwise: choose larger of fractional (10%) or absolute (0.03)
         frac_unc = instr_frac * obs
         abs_unc = xr.full_like(obs, instr_abs)
@@ -116,7 +145,7 @@ def compute_variances(obs, instr_frac, instr_abs, repr_frac):
         Var_O = instr_unc**2
         Var_R = (repr_frac * obs)**2
 
-    elif var_name == 'CN_Burden' or var_name == 'CDNC':
+    elif var_name == 'CN_Burden' or var_name == 'CDNC' or var_name == 'CDNC_Filtered' or var_name == 'TAU355' or var_name == 'TAU355_daily' or var_name.startswith(("CDNC_Filtered")):
         # fractional (30%) or 50% for CDNC
         print(f"Uncertainties are {instr_frac}% and {instr_abs} absolute")
         frac_unc = instr_frac * obs

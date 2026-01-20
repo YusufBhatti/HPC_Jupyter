@@ -75,7 +75,43 @@ elif var_name == "ERFari":
     kernal=['Linear','Matern52'] # for  ERF, AOD_M_1, AOD_M_3
 elif var_name == "CDNC":
     model= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_OCI_Interpolated_MODEL.nc').CDNC_INCL_CT.transpose('time', 'ensemble', 'lat', 'lon')
+
     kernal=['Matern52']  #  CDNC
+elif var_name == "CDNC_Filtered_OCI":
+    model= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_OCI_Interpolated_MODEL_Swath.nc').CDNC_INCL_CT.transpose('time', 'ensemble', 'lat', 'lon')
+
+    kernal=['Matern52']  #  CDNC
+elif var_name == "REFFL_CT_OCI":
+    model= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/REFFL_CT_OCI_Interpolated_MODEL_Swath.nc').REFFL_CT.transpose('time', 'ensemble', 'lat', 'lon').load()
+
+    kernal=['Matern52']  #  CDNC
+elif var_name == "CDNC_Filtered_SPEXone":
+    model= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_SPEXone_Filtered_Interpolated_MODEL.nc').CDNC_INCL_CT.transpose('time', 'ensemble', 'lat', 'lon')
+
+    kernal=['Matern52']  #  CDNC
+elif var_name == "REFFL_CT_SPEXone":
+    model= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/REFFL_CT_SPEXone_Interpolated_MODEL.nc').REFFL_CT.transpose('time', 'ensemble', 'lat', 'lon').load()
+
+    kernal=['Matern52']  #  CDNC
+elif var_name == "CDNC_Filtered_HARP":
+    model= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_HARP_Interpolated_MODEL_Swath.nc').CDNC_INCL_CT.transpose('time', 'ensemble', 'lat', 'lon')
+
+    kernal=['Matern52']  #  CDNC
+elif var_name == "REFFL_CT_HARP":
+    model= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/REFFL_CT_HARP2_Interpolated_MODEL_Swath.nc').REFFL_CT.transpose('time', 'ensemble', 'lat', 'lon').load()
+
+    kernal=['Matern52']  #  CDNC
+
+elif var_name == "TAU355":
+    model = xr.open_dataset(f'/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/TAU355_2km_EarthCARE_Interpolated_MODEL.nc').TAU_3D_355nm.transpose('time', 'ensemble', 'lat', 'lon')
+
+    kernal=['Matern52']  # AOD
+
+elif var_name == "TAU355_daily":
+    model = xr.open_dataset(f'/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/TAU355_2km_EarthCARE_Interpolated_MODEL_daily.nc').TAU_3D_355nm.transpose('time', 'ensemble', 'lat', 'lon')
+
+    kernal=['Matern52']  # AOD
+
 
 else:
     raise ValueError("Unknown variable name.")

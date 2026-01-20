@@ -61,6 +61,33 @@ elif var_name == "AOD_Mode_Coarse":
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AOD_Mode_Coarse_POLDER_Interpolated_MODEL.nc').__xarray_dataarray_variable__.load()
 elif var_name == "CDNC":
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_OCI_Interpolated_MODEL.nc').CDNC_INCL_CT.load()
+    land_mask = xr.open_dataset('/home/ybhatti2/prjs1474/Pace_PPE_Output/PPE_Experiments/PPE_ENS_1/conc_aerocom_DMS_sea.nc').DMS_sea.mean('time')
+
+elif var_name == "CDNC_Filtered_OCI":
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_OCI_Filtered_Interpolated_MODEL.nc').CDNC_INCL_CT.load()
+    land_mask = xr.open_dataset('/home/ybhatti2/prjs1474/Pace_PPE_Output/PPE_Experiments/PPE_ENS_1/conc_aerocom_DMS_sea.nc').DMS_sea.mean('time')
+
+elif var_name == "CDNC_Filtered_HARP":
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_HARP_Filtered_Interpolated_MODEL.nc').CDNC_INCL_CT.load()
+    land_mask = xr.open_dataset('/home/ybhatti2/prjs1474/Pace_PPE_Output/PPE_Experiments/PPE_ENS_1/conc_aerocom_DMS_sea.nc').DMS_sea.mean('time')
+
+elif var_name == "CDNC_Filtered_SPEX":
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_SPEXone_Filtered_Interpolated_MODEL.nc').CDNC_INCL_CT.load()
+    land_mask = xr.open_dataset('/home/ybhatti2/prjs1474/Pace_PPE_Output/PPE_Experiments/PPE_ENS_1/conc_aerocom_DMS_sea.nc').DMS_sea.mean('time')
+
+elif var_name == "REFFL_CT_OCI":
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/REFFL_CT_OCI_Interpolated_MODEL.nc').REFFL_CT.load()
+    land_mask = xr.open_dataset('/home/ybhatti2/prjs1474/Pace_PPE_Output/PPE_Experiments/PPE_ENS_1/conc_aerocom_DMS_sea.nc').DMS_sea.mean('time')
+elif var_name == "REFFL_CT_SPEXone":
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/REFFL_CT_SPEXone_Interpolated_MODEL.nc').REFFL_CT.load()
+    land_mask = xr.open_dataset('/home/ybhatti2/prjs1474/Pace_PPE_Output/PPE_Experiments/PPE_ENS_1/conc_aerocom_DMS_sea.nc').DMS_sea.mean('time')
+elif var_name == "REFFL_CT_HARP":
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/REFFL_CT_HARP_Interpolated_MODEL.nc').REFFL_CT.load()
+    land_mask = xr.open_dataset('/home/ybhatti2/prjs1474/Pace_PPE_Output/PPE_Experiments/PPE_ENS_1/conc_aerocom_DMS_sea.nc').DMS_sea.mean('time')
+
+elif var_name == "TAU355":
+    obs_data = xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/TAU355_2km_EarthCARE_Interpolated_MODEL.nc').TAU_3D_355nm.load()
+
 elif var_name == "ERF":
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PD/ERF_PPE.nc').__xarray_dataarray_variable__.load()
 elif var_name == "ERFaci":
@@ -72,13 +99,13 @@ else:
 
 try:
     obs_data = obs_data.transpose('time', 'ensemble', 'lat', 'lon')
-    ppe_vec = obs_data[:, :-1].groupby('time.month').mean()
-    obs_vec = obs_data[:, -1].groupby('time.month').mean()
+    ppe_vec = obs_data.sel(ensemble=slice(0,250)).groupby('time.month').mean()
+    obs_vec = obs_data.sel(ensemble=-1).groupby('time.month').mean()
     print("Obtained obs and ppe data")
 except:
     obs_data = obs_data.transpose('month', 'ensemble', 'lat', 'lon')
     ppe_vec = obs_data[:, :]
-    obs_vec = obs_data[:, 0]
+    obs_vec = obs_data.sel(ensemble=0)
 
     print("Obtained ppe data")
 
@@ -104,14 +131,14 @@ def Interpolate_Regional_uncertainty(Predicted, region_name, ds_mask):
     masked_array = Predicted.where(region_mask)
     return masked_array
 
-regional_mask = xr.open_dataset('/gpfs/home3/ybhatti2/HPC_Jupyter/Python_Scripts/Analysis/Regional_Mask_Ships.nc').regional_mask.load()
+regional_mask = xr.open_dataset('/gpfs/home3/ybhatti2/HPC_Jupyter/Python_Scripts/Analysis/Regional_Mask_Ships_African_Horn.nc').regional_mask.load()
 
 region_names = [
     'Australia', 'Europe', 'South-East Asia', 'Siberia','Savannah',
     'North America', 'Boreal America',
     'Amazon', 'North Atlantic', 'South Atlantic', 'North Pacific',
     'South Pacific', 'Tropic Atlantic' , 'Tropic Pacific', 'Tropic Indian', 'South Indian',
-    'Dust belt','Shipping'
+    'Dust belt','Shipping','African Horn'
 ]
 
 Region_data = []
@@ -132,7 +159,6 @@ else:
     obs_vec_rejected = obs_vec.where(reject_map)
     print(f"{var_name} so needed to mask rejection cells")
 
-    
 for region_name in region_names:
     print(f"{region_name} for {var_name}")
     region_gp = Interpolate_Regional_uncertainty(emulated_masked_rejected, region_name, regional_mask)
@@ -163,21 +189,88 @@ Region_data_box = np.concatenate([boxplot_ppe_data, boxplot_ppe_data_OBS[:, np.n
 sample_coords = np.append(emulated_masked_rejected.ensemble.values, -1)
 # sample_coords_box = emulated_masked_rejected.sample.values
 
+
+
 region_names = [
     'Australia', 'Europe', 'South-East Asia', 'Siberia','Savannah',
     'North America', 'Boreal America',
     'Amazon', 'North Atlantic', 'South Atlantic', 'North Pacific',
     'South Pacific', 'Tropic Atlantic' , 'Tropic Pacific', 'Tropic Indian', 'South Indian',
-    'Dust belt','Shipping','Global'
+    'Dust belt','Shipping','African Horn','Global'
 ]
 
-Region_data = xr.DataArray(
-    Region_data,
-    dims=("region", "month",  "sample"),
-    coords={"region": region_names, "sample": sample_coords, "month": np.arange(1, 13)},
-    name=var_name
-)
-Region_data.to_netcdf(f"{base_dir_regional}/{var_name}/Regional_Uncertainty_{var_name.lower()}_{n_samples}.nc")
+# ----------------------------------------------------
+# Add Hemispheric Difference (NH–SH) as final region
+# ----------------------------------------------------
+if var_name.startswith(("CDNC_Filtered", "REFFL_CT")):
+    print("Hemispheric Difference for ----")
+    ocean_mask = land_mask.notnull()   # True over ocean, False over land
+    emulated_ocean = ppe_vec.where(ocean_mask)
+    obs_ocean = obs_vec.where(ocean_mask)
+    obs_ocean_ens = obs_ocean.expand_dims(ensemble=[-1])
+    emulated_cdnc_ocean = xr.concat([emulated_ocean,obs_ocean_ens], dim="ensemble")
+
+    # Northern Hemisphere (0–90°N)
+    NH = areaweight(
+        emulated_cdnc_ocean.sel(lat=slice(60, 30)),
+        emulated_cdnc_ocean.sel(lat=slice(60, 30)).lat
+    )
+    
+    # Southern Hemisphere (0–90°S)
+    SH = areaweight(
+        emulated_cdnc_ocean.sel(lat=slice(-30, -60)),
+        emulated_cdnc_ocean.sel(lat=slice(-30, -60)).lat
+    )
+    HEM_Diff = NH - SH
+
+    # hemi_vals = HEM_Diff.values  # 
+    # # Add to Region_data (as model)
+    # Region_data.append(hemi_vals)
+
+    # # Add OBS row: select obs ensemble = -1
+    # hemi_obs = hemi_vals[:, -1]
+    # Region_OBS.append(hemi_obs)
+
+    HEM_DIFF = HEM_Diff.values  # convert to numpy if needed
+
+    # Add to Region_data (month × sample)
+    Region_data = np.concatenate(
+        [Region_data, HEM_DIFF[np.newaxis, :, :]],
+        axis=0
+    )
+
+    # Add to boxplot data (sample only)
+    HEM_Diff_box = HEM_DIFF.mean(axis=0)  # monthly mean removed to match boxplot dims
+    Region_data_box = np.concatenate(
+        [Region_data_box, HEM_Diff_box[np.newaxis, :]],
+        axis=0
+    )
+
+    region_names = [
+    'Australia', 'Europe', 'South-East Asia', 'Siberia','Savannah',
+    'North America', 'Boreal America',
+    'Amazon', 'North Atlantic', 'South Atlantic', 'North Pacific',
+    'South Pacific', 'Tropic Atlantic' , 'Tropic Pacific', 'Tropic Indian', 'South Indian',
+    'Dust belt','Shipping','African Horn','Global','Hemispheric_Difference'
+    ]
+
+
+if var_name == 'TAU355':
+    Region_data = xr.DataArray(
+        Region_data,
+        dims=("region", "month",  "sample"),
+        coords={"region": region_names, "sample": sample_coords, "month": np.arange(1, 9)},
+        name=var_name
+    )
+    Region_data.to_netcdf(f"{base_dir_regional}/{var_name}/Regional_Uncertainty_{var_name.lower()}_{n_samples}.nc")
+else:
+    Region_data = xr.DataArray(
+        Region_data,
+        dims=("region", "month",  "sample"),
+        coords={"region": region_names, "sample": sample_coords, "month": np.arange(1, 13)},
+        name=var_name
+    )
+    Region_data.to_netcdf(f"{base_dir_regional}/{var_name}/Regional_Uncertainty_{var_name.lower()}_{n_samples}.nc")
 
 
 
