@@ -48,6 +48,66 @@ import matplotlib.pyplot as plt
 import scipy.interpolate as interpolate
 import xarray as xr
 
+def colocate_cdnc(model_cdnc: xr.DataArray, obs_cdnc: xr.DataArray) -> xr.DataArray:
+    """
+    Co-locate observational CDNC data with a model CDNC field.
+
+    Automatically shifts observation longitudes from [-180,180] to [0,360] if needed.
+
+    Parameters
+    ----------
+    model_cdnc : xr.DataArray
+        Model CDNC with dimensions (ensemble, time, lat, lon)
+    obs_cdnc : xr.DataArray
+        Observational CDNC with dimensions (time, lat, lon)
+
+    Returns
+    -------
+    xr.DataArray
+        Model CDNC masked to only include grid cells and days where observations exist.
+        Dimensions: (ensemble, time, lat, lon)
+    """
+
+    # Step 0: Shift observation longitude to [0,360] if needed
+    if obs_cdnc.lon.min() < 0:
+        obs_cdnc = obs_cdnc.assign_coords(lon=((obs_cdnc.lon + 360) % 360))
+        obs_cdnc = obs_cdnc.sortby("lon")
+
+    # Step 1: Regrid observation onto model grid (nearest neighbor)
+    obs_on_model = obs_cdnc.interp(
+        lat=model_cdnc.lat,
+        lon=model_cdnc.lon,
+        method="nearest"
+    )
+
+    # Step 2: Align common time
+    common_time = np.intersect1d(model_cdnc.time.values, obs_on_model.time.values)
+    model_aligned = model_cdnc.sel(time=common_time)
+    obs_aligned = obs_on_model.sel(time=common_time)
+
+    # Step 3: Build daily valid-observation mask
+    valid_mask = ~np.isnan(obs_aligned)
+
+    # Step 4: Expand mask to ensemble dimension
+    valid_mask_expanded = valid_mask.expand_dims(ensemble=model_aligned.ensemble)
+
+    # Step 5: Apply mask to model
+    model_colocated = model_aligned.where(valid_mask_expanded)
+
+    # Create a new ensemble coordinate for dataset0
+    new_ensemble_id = -1  # New ensemble identifier
+    
+    
+    # Add the ensemble dimension and coordinate to dataset0_aligned
+    dataset0_expanded = obs_aligned.expand_dims("ensemble")
+    dataset0_expanded["ensemble"] = [new_ensemble_id]  # Assign the new ensemble coordinate
+    
+    # Concatenate the updated dataset along the ensemble dimension
+    updated_data = xr.concat([model_colocated, dataset0_expanded], dim="ensemble")
+
+    return updated_data, obs_aligned
+
+
 def compute_variances(obs, instr_frac, repr_frac, var='AOD'):
     """
     obs: xr.DataArray (month, lat, lon)

@@ -1,8 +1,12 @@
+# ===============================
+#os.chdir('/home/ybhatti2/HPC_Jupyter/Python_Scripts/')
+
 import numpy as np
 import xarray as xr
 import gc
 import os
 from my_functions import *
+#os.chdir('/home/ybhatti2/HPC_Jupyter/Python_Scripts/Analysis/')
 
 print('Part 2')
 
@@ -72,9 +76,9 @@ elif var_name == "AOD_Mode_Coarse":
     instr_frac, instr_abs, repr_frac = 0.1, 0.02, 0.10
 
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AOD_Mode_Coarse_POLDER_Interpolated_MODEL.nc').__xarray_dataarray_variable__.load()
-elif var_name == "CDNC":
-    instr_frac, instr_abs, repr_frac = 0.50, 0.00, 0.10
-    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_OCI_Interpolated_MODEL.nc').CDNC_INCL_CT.load()
+elif var_name == "CDNC_OCI_spx":
+    instr_frac, instr_abs, repr_frac = 0.40, 0.00, 0.10
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_OCI_Filtered_Interpolated_MODEL.nc').CDNC_INCL_CT.load()
 elif var_name == "CDNC_Filtered_OCI":
     instr_frac, instr_abs, repr_frac = 0.4, 0.00, 0.10
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_OCI_Interpolated_MODEL_Swath.nc').CDNC_INCL_CT.load()
@@ -145,7 +149,7 @@ def compute_variances(obs, instr_frac, instr_abs, repr_frac):
         Var_O = instr_unc**2
         Var_R = (repr_frac * obs)**2
 
-    elif var_name == 'CN_Burden' or var_name == 'CDNC' or var_name == 'CDNC_Filtered' or var_name == 'TAU355' or var_name == 'TAU355_daily' or var_name.startswith(("CDNC_Filtered")):
+    elif var_name == 'CN_Burden' or var_name == 'CDNC' or var_name == 'CDNC_Filtered' or var_name == 'TAU355' or var_name == 'TAU355_daily' or var_name.startswith(("CDNC")):
         # fractional (30%) or 50% for CDNC
         print(f"Uncertainties are {instr_frac}% and {instr_abs} absolute")
         frac_unc = instr_frac * obs

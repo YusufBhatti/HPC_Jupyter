@@ -73,8 +73,8 @@ elif var_name == "ERFaci":
 elif var_name == "ERFari":
     model= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PD/ERFari_PPE.nc').__xarray_dataarray_variable__
     kernal=['Linear','Matern52'] # for  ERF, AOD_M_1, AOD_M_3
-elif var_name == "CDNC":
-    model= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_OCI_Interpolated_MODEL.nc').CDNC_INCL_CT.transpose('time', 'ensemble', 'lat', 'lon')
+elif var_name == "CDNC_OCI_spx":
+    model= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_OCI_Filtered_Interpolated_MODEL.nc').CDNC_INCL_CT.transpose('time', 'ensemble', 'lat', 'lon')
 
     kernal=['Matern52']  #  CDNC
 elif var_name == "CDNC_Filtered_OCI":

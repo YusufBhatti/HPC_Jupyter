@@ -1,9 +1,9 @@
 import os
 import numpy as np
-from scipy.stats import stats
-os.putenv("HDF5_DISABLE_VERSION_CHECK", '1')
+# from scipy.stats import stats
+#os.putenv("HDF5_DISABLE_VERSION_CHECK", '1')
 
-os.chdir('/home/ybhatti2/HPC_Jupyter/Python_Scripts/')
+# os.chdir('/home/ybhatti2/HPC_Jupyter/Python_Scripts/')
 from utils import get_bc_ppe_data, normalize
 import psutil
 from esem import gp_model
@@ -11,7 +11,7 @@ from esem.utils import get_random_params
 import pandas as pd
 import xarray as xr
 from my_functions import *
-os.chdir('/home/ybhatti2/HPC_Jupyter/Python_Scripts/Analysis/')
+# os.chdir('/home/ybhatti2/HPC_Jupyter/Python_Scripts/Analysis/')
 
 import gc
 from typing import Optional
@@ -82,7 +82,7 @@ elif var_name == "CDNC_Filtered_HARP":
     kernal=['Polynomial'] # ANG , SSA, AI, M2
     kernal=['Matern52','Polynomial'] # ANG , SSA, AI, M2
 
-elif var_name == "CDNC" or var_name == "CDNC_Filtered" or var_name == "REFFL_CT" or var_name.startswith(("CDNC_Filtered", "REFFL_CT")):
+elif var_name == "CDNC_OCI_spx" or var_name == "CDNC_Filtered" or var_name == "REFFL_CT" or var_name.startswith(("CDNC_Filtered", "REFFL_CT")):
     kernal=['Bias', 'Matern52']  #  CDNC
 
 elif var_name == "TAU355":

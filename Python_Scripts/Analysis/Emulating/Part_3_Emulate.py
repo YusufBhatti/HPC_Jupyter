@@ -2,7 +2,13 @@ import numpy as np
 import xarray as xr
 import gc
 import os
+
+# os.chdir('/home/ybhatti2/HPC_Jupyter/Python_Scripts/')
+
+
 from my_functions import *
+
+# os.chdir('/home/ybhatti2/HPC_Jupyter/Python_Scripts/Analysis/')
 
 print('Part 3')
 print('This Part will Calculate Regional averages from the simulations using the rejection map from Part 2 to filter out rejected cells.')
@@ -59,34 +65,36 @@ elif var_name == "AOD_Mode_3":
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AOD_Mode_3_POLDER_Interpolated_MODEL.nc').TAU_2D_MODE_CS_550nm.load()
 elif var_name == "AOD_Mode_Coarse":
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/AOD_Mode_Coarse_POLDER_Interpolated_MODEL.nc').__xarray_dataarray_variable__.load()
-elif var_name == "CDNC":
-    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_OCI_Interpolated_MODEL.nc').CDNC_INCL_CT.load()
-    land_mask = xr.open_dataset('/home/ybhatti2/prjs1474/Pace_PPE_Output/PPE_Experiments/PPE_ENS_1/conc_aerocom_DMS_sea.nc').DMS_sea.mean('time')
-
-elif var_name == "CDNC_Filtered_OCI":
+elif var_name == "CDNC_OCI_spx":
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_OCI_Filtered_Interpolated_MODEL.nc').CDNC_INCL_CT.load()
     land_mask = xr.open_dataset('/home/ybhatti2/prjs1474/Pace_PPE_Output/PPE_Experiments/PPE_ENS_1/conc_aerocom_DMS_sea.nc').DMS_sea.mean('time')
 
-elif var_name == "CDNC_Filtered_HARP":
-    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_HARP_Filtered_Interpolated_MODEL.nc').CDNC_INCL_CT.load()
+elif var_name == "CDNC_Filtered_OCI":
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_OCI_Interpolated_MODEL_Swath.nc').CDNC_INCL_CT.load()
     land_mask = xr.open_dataset('/home/ybhatti2/prjs1474/Pace_PPE_Output/PPE_Experiments/PPE_ENS_1/conc_aerocom_DMS_sea.nc').DMS_sea.mean('time')
 
-elif var_name == "CDNC_Filtered_SPEX":
+elif var_name == "CDNC_Filtered_HARP":
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_HARP_Interpolated_MODEL_Swath.nc').CDNC_INCL_CT.load()
+    land_mask = xr.open_dataset('/home/ybhatti2/prjs1474/Pace_PPE_Output/PPE_Experiments/PPE_ENS_1/conc_aerocom_DMS_sea.nc').DMS_sea.mean('time')
+
+elif var_name == "CDNC_Filtered_SPEXone":
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/CDNC_SPEXone_Filtered_Interpolated_MODEL.nc').CDNC_INCL_CT.load()
     land_mask = xr.open_dataset('/home/ybhatti2/prjs1474/Pace_PPE_Output/PPE_Experiments/PPE_ENS_1/conc_aerocom_DMS_sea.nc').DMS_sea.mean('time')
 
 elif var_name == "REFFL_CT_OCI":
-    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/REFFL_CT_OCI_Interpolated_MODEL.nc').REFFL_CT.load()
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/REFFL_CT_OCI_Interpolated_MODEL_Swath.nc').REFFL_CT.load()
     land_mask = xr.open_dataset('/home/ybhatti2/prjs1474/Pace_PPE_Output/PPE_Experiments/PPE_ENS_1/conc_aerocom_DMS_sea.nc').DMS_sea.mean('time')
 elif var_name == "REFFL_CT_SPEXone":
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/REFFL_CT_SPEXone_Interpolated_MODEL.nc').REFFL_CT.load()
     land_mask = xr.open_dataset('/home/ybhatti2/prjs1474/Pace_PPE_Output/PPE_Experiments/PPE_ENS_1/conc_aerocom_DMS_sea.nc').DMS_sea.mean('time')
 elif var_name == "REFFL_CT_HARP":
-    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/REFFL_CT_HARP_Interpolated_MODEL.nc').REFFL_CT.load()
+    obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/REFFL_CT_HARP2_Interpolated_MODEL_Swath.nc').REFFL_CT.load()
     land_mask = xr.open_dataset('/home/ybhatti2/prjs1474/Pace_PPE_Output/PPE_Experiments/PPE_ENS_1/conc_aerocom_DMS_sea.nc').DMS_sea.mean('time')
 
 elif var_name == "TAU355":
     obs_data = xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/TAU355_2km_EarthCARE_Interpolated_MODEL.nc').TAU_3D_355nm.load()
+elif var_name == "TAU355_daily":
+    obs_data = xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PACE_Co_locating/Processed/TAU355_2km_EarthCARE_Interpolated_MODEL_daily.nc').TAU_3D_355nm.load()
 
 elif var_name == "ERF":
     obs_data= xr.open_dataset('/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PD/ERF_PPE.nc').__xarray_dataarray_variable__.load()
@@ -202,11 +210,14 @@ region_names = [
 # ----------------------------------------------------
 # Add Hemispheric Difference (NH–SH) as final region
 # ----------------------------------------------------
-if var_name.startswith(("CDNC_Filtered", "REFFL_CT")):
-    print("Hemispheric Difference for ----")
+if var_name.startswith(("CDNC", "REFFL_CT")):
+    print(f"Hemispheric Difference for {var_name}")
     ocean_mask = land_mask.notnull()   # True over ocean, False over land
-    emulated_ocean = ppe_vec.where(ocean_mask)
-    obs_ocean = obs_vec.where(ocean_mask)
+    # emulated_ocean = ppe_vec.where(ocean_mask)
+    # obs_ocean = obs_vec.where(ocean_mask)
+    emulated_ocean = emulated_masked_rejected.where(ocean_mask)
+    obs_ocean = obs_vec_rejected.where(ocean_mask)
+
     obs_ocean_ens = obs_ocean.expand_dims(ensemble=[-1])
     emulated_cdnc_ocean = xr.concat([emulated_ocean,obs_ocean_ens], dim="ensemble")
 

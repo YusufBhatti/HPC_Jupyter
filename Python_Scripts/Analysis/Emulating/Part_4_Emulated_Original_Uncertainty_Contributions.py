@@ -1,9 +1,9 @@
 import os
 import numpy as np
-#from scipy.stats import stats
-os.putenv("HDF5_DISABLE_VERSION_CHECK", '1')
+# from scipy.stats import stats
+#os.putenv("HDF5_DISABLE_VERSION_CHECK", '1')
 
-os.chdir('/home/ybhatti2/HPC_Jupyter/Python_Scripts/')
+# os.chdir('/home/ybhatti2/HPC_Jupyter/Python_Scripts/')
 from utils import get_bc_ppe_data, normalize
 import psutil
 from esem import gp_model
@@ -11,7 +11,7 @@ from esem.utils import get_random_params
 import pandas as pd
 import xarray as xr
 from my_functions import *
-os.chdir('/home/ybhatti2/HPC_Jupyter/Python_Scripts/Analysis/')
+# os.chdir('/home/ybhatti2/HPC_Jupyter/Python_Scripts/Analysis/')
 
 import gc
 from typing import Optional
@@ -85,8 +85,12 @@ elif var_name == "CDNC_Filtered_HARP":
 elif var_name == "CDNC_OCI_spx" or var_name == "CDNC_Filtered" or var_name == "REFFL_CT" or var_name.startswith(("CDNC_Filtered", "REFFL_CT")):
     kernal=['Bias', 'Matern52']  #  CDNC
 
+elif var_name == "TAU355":
+    kernal=['Bias','Polynomial'] # ANG , SSA, AI, M2
+    
 elif var_name == "TAU355_daily":
     kernal=['Bias','Polynomial'] # ANG , SSA, AI, M2
+
 
 else:
     raise ValueError("Unknown variable name.")
@@ -132,10 +136,7 @@ print('Emulator Training complete')
 print(f'Distribution of Actual vs. Predicted Values {kernal} = {np.corrcoef(y_true, y_pred)[1][0]**2:.4f}')
 
 
-#ppe_normalized_new_samples = pd.read_csv(f'/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PD/Emulated_data/Implausibility/Var/Regional/Accepted_Ensembles/Accepted_Params_norm_4270.csv')
-#ppe_normalized_new_samples = pd.read_csv(f'/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PD/Emulated_data/Implausibility/Var/Regional/Accepted_Ensembles/Accepted_Params_norm_3970_Best_Constraint.csv')
-ppe_normalized_new_samples = pd.read_csv(f'/home/ybhatti2/prjs1474/Datasets/PPE_Processed_Data/PD/Emulated_data/Implausibility/Var/Regional/Accepted_Ensembles/Accepted_Params_norm_1891_Optimal_Constraint_chosen_L14.csv')
-
+ppe_normalized_new_samples = pd.read_csv(f'{base_dir}/ppe_params_{n_samples_new}.csv')
 ppe_normalized_new_samples.set_index(ppe_normalized_new_samples.columns[0], inplace=True)
 print('Read new samples ')
 
@@ -157,18 +158,17 @@ def parameter_testing(table,PARAMETER):
 emulated, var = gp_model.predict(ppe_normalized_new_samples.values)
 
 # 
-print(f'For {var_name} we will now obtain the contribution to global annual mean uncertainty for the ACCEPTED Ensembles')
+print(f'For {var_name} we will now obtain the contribution to global annual mean uncertainty')
 # Initialize an empty list to hold the results
 results = []
 results_ann = []
+
 for col,i in zip(ppe_normalized_new_samples.columns,range(0,len(ppe_normalized_new_samples.columns))):
     print(col)
     norm_param = parameter_testing(ppe_normalized_new_samples,col)
     gp_prediction, _ = gp_model.predict(norm_param.values)
     gpmeans = gp_prediction.sel(region='Global').mean('month')
-    
     gp_uncert = gp_prediction.std('sample')
-    gp_uncert_ann = gpmeans.std('sample')
     gp_uncert_ann = gpmeans.std('sample')
 
     p5 = gp_prediction.quantile(0.05, dim='sample')
@@ -180,7 +180,6 @@ for col,i in zip(ppe_normalized_new_samples.columns,range(0,len(ppe_normalized_n
         'Variable': col,
         f"std": gp_uncert_ann.data,
     })
-    # Convert DataArray to tidy DataFrame
     df_tmp = gp_uncert.to_dataframe(name="std").reset_index()
     df_gap = gap.to_dataframe(name="gap").reset_index()
 
@@ -189,26 +188,16 @@ for col,i in zip(ppe_normalized_new_samples.columns,range(0,len(ppe_normalized_n
     df_tmp["Variable"] = col
     
     results.append(df_tmp)
-
-    # if i == 2:
-    #     end
     
 # Convert the accumulated results into a DataFrame after the loop
 results_df_ann = pd.DataFrame(results_ann)
+
 results_df = pd.concat(results, ignore_index=True)
+#results_df[f"Uncertainty_{var_name}_UNConstrained_Pre"] = (results_df['std'] / results_df['std'].sum()) * 100
+results_df_ann[f"Uncertainty_{var_name}_UNConstrained_Pre"] = (results_df_ann['std'] / results_df_ann['std'].sum()) * 100
 
-results_df_ann[f"Uncertainty_{var_name}_Constrained_Pre"] = (results_df_ann['std'] / results_df_ann['std'].sum()) * 100
-results_df.to_csv(f'{base_dir_regional}/{var_name}/Contribution_of_{var_name.lower()}_{n_samples_new}_to_CONSTRAINED_uncertainty_v2_5_95.csv')
-results_df_ann.to_csv(f'{base_dir_regional}/{var_name}/Contribution_of_{var_name.lower()}_{n_samples_new}_to_CONSTRAINED_uncertainty_annual_v2.csv')
-
-
-# if var_name == 'ERF' or var_name == 'ERFaci' or var_name == 'ERFari':
-#     pass
-# else:
-#     emulated = xr.concat([emulated, model_da], dim='sample')
+results_df.to_csv(f'{base_dir_regional}/{var_name}/Contribution_of_{var_name.lower()}_{n_samples_new}_to_uncertainty_5_95.csv')
+results_df_ann.to_csv(f'{base_dir_regional}/{var_name}/Contribution_of_{var_name.lower()}_{n_samples_new}_to_uncertainty_annual.csv')
 
 
-#print('Saving emulated Variables')
-# emulated.to_netcdf(f'{base_dir_regional}/{var_name}/emulated_{var_name.lower()}_{n_samples_new}.nc')
-
-print('Completed part 4 constrained')
+print('Completed Part 4 original')
