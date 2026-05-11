@@ -1,20 +1,22 @@
 #!/bin/bash
 #BATCH --job-name=jupyterlab
-#SBATCH -t 9:00:00
-#SBATCH -p rome
+#SBATCH -t 12:00:00
+#SBATCH -p genoa
 #SBATCH --cpus-per-task=32
 #SBATCH --get-user-env
 
 cd ~
 echo "into the Scripts for my project"
 export PATH=/home/ybhatti2/miniconda3/bin:$PATH
-source activate ESM
+source activate myenv
 ##PORT=`shuf -i 5000-5999 -n 1`
 PORT=51526
 #PORT=`shuf -i 5000-5999 -n 1`
 
-#OGIN_HOST=${SLURM_SUBMIT_HOST}-pub.snellius.surf.nl
-LOGIN_HOST=int5-pub.snellius.surf.nl
+#LOGIN_HOST=${SLURM_SUBMIT_HOST}-pub.snellius.surf.nl
+LOGIN_HOST=${SLURM_SUBMIT_HOST%%.*}-pub.snellius.surf.nl
+
+#LOGIN_HOST=int5-pub.snellius.surf.nl
 BATCH_HOST=$(hostname)
  
 echo "To connect to the notebook type the following command from your local terminal:"
@@ -25,7 +27,7 @@ echo "http://localhost:${PORT}"
 #/usr/bin/ssh -N -f -R $PORT:localhost:$PORT snellius
 
 echo "Connect to localhost" 
-sed -i '6c\ssh -N -J '"${USER}"'@'"${LOGIN_HOST}"' '"${USER}"'@'"${BATCH_HOST}"' -L '"${PORT}"':localhost:'"${PORT}"'' /home/ybhatti/HPC_Jupyter/ssh_connect.sh
+sed -i '6c\ssh -N -J '"${USER}"'@'"${LOGIN_HOST}"' '"${USER}"'@'"${BATCH_HOST}"' -L '"${PORT}"':localhost:'"${PORT}"'' /home/ybhatti2/HPC_Jupyter/ssh_connect.sh
 
 
 echo "connected to local host ssh -N -J ${USER}@${LOGIN_HOST} ${USER}@${BATCH_HOST} -L ${PORT}:localhost:${PORT}"
