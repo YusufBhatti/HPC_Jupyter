@@ -13,8 +13,10 @@ source activate myenv
 PORT=51526
 #PORT=`shuf -i 5000-5999 -n 1`
 
-#OGIN_HOST=${SLURM_SUBMIT_HOST}-pub.snellius.surf.nl
-LOGIN_HOST=int5-pub.snellius.surf.nl
+#LOGIN_HOST=${SLURM_SUBMIT_HOST}-pub.snellius.surf.nl
+LOGIN_HOST=${SLURM_SUBMIT_HOST%%.*}-pub.snellius.surf.nl
+
+#LOGIN_HOST=int5-pub.snellius.surf.nl
 BATCH_HOST=$(hostname)
  
 echo "To connect to the notebook type the following command from your local terminal:"
